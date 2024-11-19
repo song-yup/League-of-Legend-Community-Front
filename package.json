@@ -50,6 +50,8 @@
     ]
   },
   "devDependencies": {
+    "@locator/babel-jsx": "^0.4.4",
+    "@locator/runtime": "^0.4.4",
     "@types/styled-components": "^5.1.34"
   }
 }

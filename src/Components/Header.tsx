@@ -3,6 +3,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components";
 import { isDarkAtom, isLoginAtom } from "../atom";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 const Nav = styled(motion.nav)`
   display: flex;
@@ -52,9 +53,23 @@ function Header() {
 
   const isLogin = useRecoilValue(isLoginAtom);
   const setLogin = useSetRecoilState(isLoginAtom);
-  const toggleLoginAtom = () => {
-    setLogin((current: boolean) => !current);
-  };
+
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(`http://localhost:8080/mypage`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const json = await response.json();
+      console.log(json);
+
+      if (json) {
+        setLogin(true);
+      } else {
+        setLogin(false);
+      }
+    })();
+  }, []);
 
   return (
     <Nav>

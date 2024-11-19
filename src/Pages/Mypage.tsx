@@ -104,6 +104,23 @@ function MyPage() {
     navigate("/login/nickname");
   };
 
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(`http://localhost:8080/mypage`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const json = await response.json();
+      console.log(json);
+
+      if (json) {
+        setLogin(true);
+      } else {
+        setLogin(false);
+      }
+    })();
+  }, []);
+
   return (
     <Wrapper>
       <MainContainer>
@@ -143,7 +160,7 @@ function MyPage() {
                 <MyInfo>{UserInfo?.exp}</MyInfo>
                 <Img src="https://cdn-icons-png.flaticon.com/512/7965/7965741.png" />
                 <MyInfo>{UserInfo?.level}</MyInfo>
-                <LogImg src={UserInfo?.imageUrl} alt="프로필 없음"/>
+                <LogImg src={UserInfo?.imageUrl} alt="프로필 없음" />
               </Container>
             )}
             <LogoutButton onClick={gotoUserInfo}>Goto Nickname</LogoutButton>

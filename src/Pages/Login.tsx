@@ -193,17 +193,11 @@ const SocialImage = styled.img`
 `;
 
 function Login() {
-  const setLogin = useSetRecoilState(isLoginAtom);
-  const toggleLoginAtom = () => {
-    setLogin((current: boolean) => !current);
-  };
   const googleOnclick = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/google";
-    toggleLoginAtom();
   };
   const naverOnclick = () => {
     window.location.href = "http://localhost:8080/oauth2/authorization/naver";
-    toggleLoginAtom();
   };
 
   return (

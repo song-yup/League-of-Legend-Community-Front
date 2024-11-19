@@ -112,11 +112,17 @@ function Community() {
     commentid: number
   ) => {
     e.preventDefault();
-    await fetch(`http://localhost:8080/${commentid}/comment`, {
+    const response = await fetch(`http://localhost:8080/${commentid}/comment`, {
       method: "DELETE",
       credentials: "include",
     });
-    window.location.reload();
+    if (response.ok) {
+      alert("댓글이 삭제되었습니다.");
+      window.location.reload();
+    } else if (!response.ok) {
+      alert("댓글 삭제에 실패하였습니다.");
+      window.location.reload();
+    }
   };
 
   const editCommentToggle = (comment: IComment) => {
@@ -126,17 +132,26 @@ function Community() {
 
   const updateComment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await fetch(`http://localhost:8080/${editCommentId}/comment`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content: editCommentContent }),
-      credentials: "include",
-    });
+    const response = await fetch(
+      `http://localhost:8080/${editCommentId}/comment`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: editCommentContent }),
+        credentials: "include",
+      }
+    );
     setEditCommentId(null);
     setEditCommentContent("");
-    window.location.reload();
+
+    if (response.ok) {
+      alert("댓글이 수정되었습니다.");
+      window.location.reload();
+    } else if (!response.ok) {
+      alert("댓글 수정에 실패하였습니다.");
+    }
   };
 
   return (

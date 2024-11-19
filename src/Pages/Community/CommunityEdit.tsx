@@ -44,15 +44,24 @@ function CommunityEdit() {
     content: string
   ) => {
     event.preventDefault();
-    await fetch(`http://localhost:8080/community/${communityid}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ title, content }),
-      credentials: "include",
-    });
-    navigate(`/community/${communityid}`);
+    const response = await fetch(
+      `http://localhost:8080/community/${communityid}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, content }),
+        credentials: "include",
+      }
+    );
+    if (response.ok) {
+      alert("게시글 수정이 완료되었습니다.");
+      navigate(`/community/${communityid}`);
+    } else if (!response.ok) {
+      alert("게시글 수정에 실패하였습니다.");
+      navigate(`/community/${communityid}`);
+    }
   };
 
   const customUploadAdapter = (loader: any) => {
@@ -111,10 +120,6 @@ function CommunityEdit() {
     })();
   }, []);
 
-  const onChange = () => {
-    setTitle(title);
-  };
-
   return (
     <Wrapper>
       <MainContainer>
@@ -135,7 +140,7 @@ function CommunityEdit() {
               data={content}
               onChange={(event, editor) => {
                 const data = editor.getData();
-                setContent(data); // content 업데이트
+                setContent(data);
               }}
             />
             <button onClick={(event) => editCommunity(event, title, content)}>
