@@ -1,5 +1,4 @@
 import ReactDOM from "react-dom/client";
-import App from "./App";
 import { RecoilRoot, useRecoilValue } from "recoil";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "./Styles/theme";
