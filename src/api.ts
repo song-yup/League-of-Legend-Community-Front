@@ -69,6 +69,18 @@ export interface IContent {
   commentsCount: number;
 }
 
+export interface IComment {
+  id: number;
+  communityId: number;
+  communityTitle: string;
+  nickname: string;
+  content: string;
+  createdAt: string;
+  updateAt: string;
+  likesCount: number;
+  hatesCount: number;
+}
+
 export function loadUser() {
   return fetch(`http://localhost:8080/mypage`, {
     method: "GET",

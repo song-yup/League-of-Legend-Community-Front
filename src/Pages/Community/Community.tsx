@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { IContent } from "../../api";
+import { IComment, IContent } from "../../api";
 
 const Wrapper = styled.div`
   display: flex;
@@ -31,10 +31,14 @@ const Title = styled.span`
 
 function Community() {
   const { communityid } = useParams();
-  // console.log(communityid);
-  const location = useLocation();
   const [content, setContent] = useState<IContent>();
+  const [commentList, setCommentList] = useState<IComment[]>([]);
+  const [comment, setComment] = useState("");
+  const [editCommentId, setEditCommentId] = useState<number | null>(null); // 수정할 댓글 ID
+  const [editCommentContent, setEditCommentContent] = useState(""); // 수정할 댓글 내용
+
   const navigate = useNavigate();
+
   useEffect(() => {
     (async () => {
       const response = await fetch(
@@ -45,8 +49,19 @@ function Community() {
         }
       );
       const json = await response.json();
-      // console.log(json);
       setContent(json);
+    })();
+
+    (async () => {
+      const response2 = await fetch(
+        `http://localhost:8080/${communityid}/comment`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      const json2 = await response2.json();
+      setCommentList(json2);
     })();
   }, []);
 
@@ -61,7 +76,6 @@ function Community() {
         credentials: "include",
       }
     );
-    // console.log(response.status);
     if (response.status === 200) {
       alert("게시글 삭제가 완료되었습니다.");
       navigate("/community");
@@ -71,15 +85,110 @@ function Community() {
     }
   };
 
+  const onChangeInput = (e: React.FormEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const {
+      currentTarget: { value },
+    } = e;
+    setComment(value);
+  };
+
+  const postComment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const content = comment;
+    await fetch(`http://localhost:8080/${communityid}/comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content }),
+      credentials: "include",
+    });
+    window.location.reload();
+  };
+
+  const deleteComment = async (
+    e: React.FormEvent<HTMLButtonElement>,
+    commentid: number
+  ) => {
+    e.preventDefault();
+    await fetch(`http://localhost:8080/${commentid}/comment`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    window.location.reload();
+  };
+
+  const editCommentToggle = (comment: IComment) => {
+    setEditCommentId(comment.id);
+    setEditCommentContent(comment.content);
+  };
+
+  const updateComment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await fetch(`http://localhost:8080/${editCommentId}/comment`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ content: editCommentContent }),
+      credentials: "include",
+    });
+    setEditCommentId(null);
+    setEditCommentContent("");
+    window.location.reload();
+  };
+
   return (
     <Wrapper>
       <MainContainer>
-        {content && content.id && (
-          <div>
+        {content && (
+          <div key={content.id}>
             <Title>{content.title}</Title>
             <div>{content.nickname}</div>
             <div>{content.createdAt}</div>
             <div dangerouslySetInnerHTML={{ __html: content.content }} />
+            {commentList.map((comment) => (
+              <div key={comment.id}>
+                <ul>
+                  <li>
+                    {comment.nickname} :{" "}
+                    {editCommentId === comment.id ? (
+                      <form onSubmit={updateComment}>
+                        <input
+                          value={editCommentContent}
+                          onChange={(e) =>
+                            setEditCommentContent(e.target.value)
+                          }
+                        />
+                        <button type="submit">수정 완료</button>
+                      </form>
+                    ) : (
+                      <>
+                        {comment.content}
+                        <button onClick={() => editCommentToggle(comment)}>
+                          수정
+                        </button>
+                        <button onClick={(e) => deleteComment(e, comment.id)}>
+                          삭제
+                        </button>
+                      </>
+                    )}
+                  </li>
+                </ul>
+              </div>
+            ))}
+
+            <form onSubmit={postComment}>
+              <div>
+                <input
+                  placeholder="댓글을 입력하세요"
+                  onChange={onChangeInput}
+                />
+                <button>입력</button>
+              </div>
+            </form>
+
             <Link to="edit">
               <button>Edit</button>
             </Link>
